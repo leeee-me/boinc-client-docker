@@ -1,0 +1,42 @@
+FROM ubuntu:20.04
+
+LABEL maintainer="BOINC" \
+      description="Ubuntu base image for lightweight BOINC client."
+
+ENV http_proxy http://proxy-chain.intel.com:911/
+ENV https_proxy http://proxy-chain.intel.com:912/
+ENV ftp_proxyx http://proxy-chain.intel.com:911/
+ENV socks_proxy http://proxy-chain.intel.com:1080/
+ENV no_proxy localhost,.intel.com,*.intel.com,10.0.0.0/8
+
+# Global environment settings
+ENV BOINC_GUI_RPC_PASSWORD="123" \
+    BOINC_REMOTE_HOST="127.0.0.1" \
+    BOINC_CMD_LINE_OPTIONS="" \
+	DEBIAN_FRONTEND=noninteractive
+
+# Copy files
+COPY bin/ /usr/bin/
+
+# Configure
+WORKDIR /var/lib/boinc
+
+# BOINC RPC port
+EXPOSE 31416
+
+# Install
+RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install PPA dependency
+    software-properties-common \
+# Install Time Zone Database
+	tzdata && \
+# Install BOINC Client
+    add-apt-repository -y ppa:costamagnagianfranco/boinc && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    boinc-client && \
+# Cleaning up
+    apt-get remove -y software-properties-common && \
+    apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
+
+CMD ["start-boinc.sh"]
