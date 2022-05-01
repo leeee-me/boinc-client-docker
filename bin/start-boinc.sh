@@ -20,6 +20,8 @@ fi
 sed -i -e "s/^${USER}:\([^:]*\):[0-9]*:[0-9]*/${USER}:\1:${HOST_USER_ID}:${HOST_USER_GID}/"  /etc/passwd
 sed -i -e "s/^${USER}:\([^:]*\):[0-9]*/${USER}:\1:${HOST_USER_GID}/"  /etc/group
 
+chown -R boinc.boinc /var/lib/boinc
+
 # Run BOINC. Full path needs for GPU support.
-exec start-stop-daemon --start --user ${HOST_USER_ID} --group ${HOST_USER_GID} --chuid ${HOST_USER_ID}:${HOST_USER_GID} --chdir /var/lib/boinc --exec /usr/bin/boinc -- $BOINC_CMD_LINE_OPTIONS
+exec start-stop-daemon --start --pidfile /var/run/boinc.pid --user ${HOST_USER_ID} --group ${HOST_USER_GID} --chuid ${HOST_USER_ID}:${HOST_USER_GID} --chdir /var/lib/boinc --exec /usr/bin/boinc -- $BOINC_CMD_LINE_OPTIONS
 

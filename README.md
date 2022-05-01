@@ -61,7 +61,7 @@ docker run -d \
   -p 34000 \
   -v /opt/appdata/boinc:/var/lib/boinc \
   -e BOINC_GUI_RPC_PASSWORD="123" \
-  -e BOINC_CMD_LINE_OPTIONS="--allow_remote_gui_rpc --gui_rpc_port 34000" \
+  -e BOINC_CMD_LINE_OPTIONS="--allow_multiple_clients --allow_remote_gui_rpc --gui_rpc_port 34000" \
   -e HOST_USER_ID="123" \
   -e HOST_USER_GID="130" \
   boinc/client:virtualbox
