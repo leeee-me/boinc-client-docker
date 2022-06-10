@@ -19,6 +19,7 @@ docker run -d \
   --name boinc \
   --net=host \
   --pid=host \
+  --security-opt apparmor=unconfined \
   -p 34000 \
   -v /opt/appdata/boinc:/var/lib/boinc \
   -e BOINC_GUI_RPC_PASSWORD="123" \
@@ -49,6 +50,7 @@ where `<host>` should be the hostname or IP address of the machine running the D
 You are also free to run `boinccmd` natively if you have it installed, rather than via Docker. 
 
 
+For virtualbox support docker,
 - Install the `virtualbox-dkms` package on the host. NOTE: The version of the Virtualbox must by identical (major.minor.patch) on the host and the container.
 - Run the following command:
 
@@ -58,6 +60,7 @@ docker run -d \
   --device=/dev/vboxdrv:/dev/vboxdrv \
   --net=host \
   --pid=host \
+  --security-opt apparmor=unconfined \
   -p 34000 \
   -v /opt/appdata/boinc:/var/lib/boinc \
   -e BOINC_GUI_RPC_PASSWORD="123" \
@@ -65,6 +68,15 @@ docker run -d \
   -e HOST_USER_ID="123" \
   -e HOST_USER_GID="130" \
   boinc/client:virtualbox
+```
+
+For GPU support docker (e.g., Intel)
+- It must be root to run docker
+- Run the following command:
+
+```sh
+...
+  --device=/dev/dri:/dev/dri \
 ```
 
 ## Parameters
