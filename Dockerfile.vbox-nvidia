@@ -1,0 +1,52 @@
+FROM nvidia/cuda:11.4.2-base-ubuntu20.04
+
+LABEL maintainer="BOINC" \
+      description="NVIDIA-savvy (CUDA & OpenCL) BOINC client."
+
+# Global environment settings
+ENV BOINC_GUI_RPC_PASSWORD="123" \
+    BOINC_REMOTE_HOST="127.0.0.1" \
+    BOINC_CMD_LINE_OPTIONS="" \
+	DEBIAN_FRONTEND=noninteractive
+
+# Copy files
+COPY bin/ /usr/bin/
+
+# Configure
+WORKDIR /var/lib/boinc
+
+# BOINC RPC port
+EXPOSE 31416
+
+# Define user and temporary uid and gid
+ENV USER=boinc USER_ID=1000 USER_GID=1000
+RUN sed -i -e "s/^${USER}:\([^:]*\):[0-9]*:[0-9]*/${USER}:\1:${USER_ID}:${USER_GID}/"  /etc/passwd
+RUN sed -i -e "s/^${USER}:\([^:]*\):[0-9]*/${USER}:\1:${USER_GID}/"  /etc/group
+
+
+# Install
+RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install PPA dependency
+    software-properties-common \
+# Install Time Zone Database
+	tzdata && \
+# Install BOINC Client
+    add-apt-repository -y ppa:costamagnagianfranco/boinc && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    boinc-client && \
+    apt-get install -y --no-install-recommends \
+# Install VirtualBox
+    virtualbox && \
+    echo virtualbox-ext-pack virtualbox-ext-pack/license select true | debconf-set-selections && \
+    apt-get install -y --no-install-recommends virtualbox-ext-pack && \
+# Install Nvidia OpenCL
+    add-apt-repository -y ppa:graphics-drivers && \
+    apt-get update && apt-get install -y --install-recommends \
+    nvidia-opencl-dev && \
+# Cleaning up
+    apt-get remove -y software-properties-common && \
+    apt-get autoremove -y && \
+    apt-get update && apt-get upgrade -y && apt-get autoremove -y && \
+    rm -rf /var/lib/apt/lists/*
+
+CMD ["start-boinc.sh"]
